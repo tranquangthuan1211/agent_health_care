@@ -1,0 +1,61 @@
+// 📁 mockData.js
+export const specialties = [
+    { id: "neuro", name: "Thần kinh" },
+    { id: "eye", name: "Mắt" },
+    { id: "resp", name: "Hô hấp" },
+    { id: "digestive", name: "Tiêu hóa" },
+    { id: "cardio", name: "Tim mạch" },
+    { id: "ortho", name: "Chỉnh hình" },
+    { id: "skin", name: "Da liễu" },
+    { id: "psycho", name: "Tâm lý" },
+    { id: "endocrine", name: "Nội tiết" },
+    { id: "urology", name: "Tiết niệu" },
+    { id: "gynecology", name: "Phụ khoa" },
+    { id: "pediatrics", name: "Nhi khoa" },
+    { id: "oncology", name: "Ung bướu" },
+    { id: "orthopedics", name: "Chấn thương chỉnh hình" },
+    { id: "neurology", name: "Thần kinh học" },
+    { id: "dermatology", name: "Da liễu học" },
+    { id: "rheumatology", name: "Thấp khớp học" },
+    { id: "gastroenterology", name: "Tiêu hóa học" },
+    { id: "pulmonology", name: "Hô hấp học" },
+    { id: "cardiology", name: "Tim mạch học" },
+    { id: "nephrology", name: "Thận học" },
+    { id: "endocrinology", name: "Nội tiết học" },
+    { id: "psychiatry", name: "Tâm thần học" },
+    { id: "urology", name: "Tiết niệu học" },
+];  
+export const diseases = [
+    { id: "headache", name: "Đau đầu", specialtyId: "neuro" },
+    { id: "blurred_vision", name: "Mờ mắt", specialtyId: "eye" },
+    { id: "shortness_breath", name: "Khó thở", specialtyId: "resp" },
+    {id: "nausea", name: "Buồn nôn", specialtyId: "digestive"},
+    {id: "chest_pain", name: "Đau ngực", specialtyId: "cardio"},
+    {id: "joint_pain", name: "Đau khớp", specialtyId: "ortho"},
+    {id: "skin_rash", name: "Phát ban da", specialtyId: "skin"},
+    {id: "anxiety", name: "Lo âu", specialtyId: "psycho"},
+    {id: "diabetes", name: "Tiểu đường", specialtyId: "endocrine"},
+    {id: "urinary_infection", name: "Nhiễm trùng đường tiết niệu", specialtyId: "urology"},
+    {id: "menstrual_irregularities", name: "Rối loạn kinh nguyệt", specialtyId: "gynecology"},
+    {id: "child_fever", name: "Sốt ở trẻ em", specialtyId: "pediatrics"},
+    {id: "cancer", name: "Ung thư", specialtyId: "oncology"},
+    { id: "belching", name: "Ợ hơi", specialtyId: "digestive" }
+];
+  
+export const doctors = [
+    { id: "d1", name: "BS. Trần Văn A", specialtyId: "neuro" },
+    { id: "d2", name: "BS. Nguyễn Thị B", specialtyId: "eye" },
+    { id: "d3", name: "BS. Lê Văn C", specialtyId: "resp" },
+    { id: "d4", name: "BS. Phạm Thị D", specialtyId: "digestive" },
+    { id: "d5", name: "BS. Hoàng Văn E", specialtyId: "cardio" },
+    { id: "d6", name: "BS. Trần Thị F", specialtyId: "ortho" },
+    { id: "d7", name: "BS. Nguyễn Văn G", specialtyId: "skin" },
+    { id: "d8", name: "BS. Lê Thị H", specialtyId: "psycho" },
+    { id: "d9", name: "BS. Phạm Văn I", specialtyId: "endocrine" },
+    { id: "d10", name: "BS. Hoàng Thị J", specialtyId: "urology" },
+    { id: "d11", name: "BS. Trần Văn K", specialtyId: "gynecology" },
+    { id: "d12", name: "BS. Nguyễn Thị L", specialtyId: "pediatrics" },
+    { id: "d13", name: "BS. Lê Văn M", specialtyId: "oncology" },
+];
+
+  
