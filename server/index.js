@@ -1,21 +1,22 @@
 import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
 import express from "express";
-import dotenv from 'dotenv'; // Import dotenv để đọc biến môi trường
-import rabbitmq from "./config/rabbitMq.js"; // Import RabbitMQ config
-const PORT = process.env.PORT || 3000; // Cổng mặc định là 3000     
+import dotenv from 'dotenv';
+import rabbitmq from "./config/rabbitMq.js"; 
+const PORT = process.env.PORT || 3000;  
+import path from 'path'; 
+import { fileURLToPath } from 'url';
 
-// Load environment variables from .env file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
 
-// --- Mock Data (Thay thế bằng dữ liệu từ database của bạn) ---
-// Đây là ví dụ về cấu trúc dữ liệu bạn có thể có
 const specialties = [
     { id: 1, name: "Khoa Nội Tổng quát" },
     { id: 2, name: "Khoa Tim mạch" },
     { id: 3, name: "Khoa Da liễu" },
     { id: 4, name: "Khoa Thần kinh" },
-    // Thêm các chuyên khoa khác nếu cần
 ];
 
 const diseases = [
@@ -35,19 +36,15 @@ const doctors = [
     { id: 1004, name: "BS. Phạm Thị D", specialtyId: 4 },
     { id: 1005, name: "BS. Hoàng Văn E", specialtyId: 1 },
      { id: 1006, name: "BS. Phan Thị F", specialtyId: 4 },
-    // Thêm các bác sĩ khác
 ];
 
-// --- Cấu hình OpenAI Client ---
-// Sử dụng biến môi trường để lấy token và endpoint
-const token = process.env.OPENAI_API_KEY; // Hoặc tên biến môi trường chứa token của bạn
-const endpoint = process.env.OPENAI_API_ENDPOINT; // Hoặc tên biến môi trường chứa endpoint của bạn
-const model = process.env.OPENAI_CHAT_MODEL || "openai/gpt-4o-mini"; // Model mặc định
+const token = process.env.OPENAI_API_KEY; 
+const endpoint = process.env.OPENAI_API_ENDPOINT; 
+const model = process.env.OPENAI_CHAT_MODEL || "openai/gpt-4o-mini";
 
-// Kiểm tra cấu hình
 if (!token || !endpoint) {
     console.error("Lỗi: Thiếu biến môi trường OPENAI_API_KEY hoặc OPENAI_API_ENDPOINT.");
-    process.exit(1); // Thoát nếu thiếu cấu hình
+    process.exit(1);
 }
 
 const client = ModelClient(
@@ -55,17 +52,23 @@ const client = ModelClient(
     new AzureKeyCredential(token),
 );
 
-// --- Cấu hình Express App ---
 const app = express();
-app.use(express.json()); // Xử lý body dạng JSON
-app.use(express.urlencoded({ extended: true })); // Xử lý body dạng URL-encoded
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 
-// --- Route chính ---
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 app.get('/', (req, res) => {
-    res.send('Chatbot backend is running!');
-});
-
-// --- Route xử lý chat ---
+    const chatHistory = [
+      { sender: 'Ticket Bot', text: '👋 Hi! What can I do for you today?', type: 'text' },
+      { sender: 'You', text: 'Create ticket', type: 'action' },
+      { sender: 'Ticket Bot', text: "Okay, let's get started then! 🚀", type: 'text' },
+      { sender: 'Ticket Bot', text: "What's your name?", type: 'text' },
+      { sender: 'You', text: 'Tom', type: 'text' }
+    ];
+  
+    res.render('index', { chatHistory: chatHistory });
+  });
 app.post('/api/chat', async (req, res) => {
     // Chú ý: Frontend nên gửi câu hỏi dưới dạng { "question": "Người dùng hỏi gì?" }
     const userQuestion = req.body.question;
@@ -80,23 +83,18 @@ app.post('/api/chat', async (req, res) => {
     console.log("User Question:", userQuestion);
 
     try {
-        // --- Bước 1: Tìm kiếm thông tin liên quan trong dữ liệu của bạn ---
-        // (Phần này mô phỏng việc query database)
         const matchedDiseases = diseases.filter(d =>
             userQuestion.toLowerCase().includes(d.name.toLowerCase())
         );
 
-        // Tìm chuyên khoa dựa trên bệnh tìm được
         const matchedSpecialties = matchedDiseases.map(d =>
             specialties.find(s => s.id === d.specialtyId)
-        ).filter(s => s !== undefined); // Lọc bỏ các chuyên khoa không tìm thấy
+        ).filter(s => s !== undefined);
 
-        // Tìm bác sĩ dựa trên chuyên khoa tìm được
         const suggestedDoctors = matchedSpecialties.flatMap(s =>
             doctors.filter(d => d.specialtyId === s.id)
         );
 
-        // --- Bước 2: Xây dựng context (thông tin) để cung cấp cho LLM ---
         let context = "";
 
         if (matchedDiseases.length > 0) {
@@ -115,8 +113,6 @@ app.post('/api/chat', async (req, res) => {
             context += "Hệ thống không tìm thấy bệnh hoặc triệu chứng cụ thể nào trong câu hỏi của người dùng dựa trên dữ liệu có sẵn.";
         }
 
-        // --- Bước 3: Chuẩn bị Messages cho LLM Call ---
-        // System message: Hướng dẫn LLM về vai trò và cách trả lời
         const systemMessage = `
         Bạn là một trợ lý y tế ảo thân thiện.
 
@@ -127,18 +123,15 @@ app.post('/api/chat', async (req, res) => {
             - Nếu người dùng muốn đặt lịch khám, xem lịch khám → trả về route: \`/booking\`
 
         - Sau đó, TRẢ VỀ:
-            1. Route API phù hợp (chỉ: \`/disease\`, \`/doctor\`, hoặc \`/booking\`).
-            2. Câu lệnh để query database.
+            1. dữ liệu query từ database (nếu có) dưới dạng JSON.
             3. Một danh sách từ 2 đến 4 câu gợi ý tiếp theo giúp người dùng hỏi thêm.
 
         Quy tắc:
         - KHÔNG trả về HTML.
         - KHÔNG giải thích.
-        - Chỉ trả về đúng route + câu lệnh query databasw + gợi ý.
-        - Nếu chưa đủ thông tin để xác định, lịch sự yêu cầu người dùng cung cấp thêm chi tiết.
 
         Định dạng trả về:
-        - Route: \`/doctor\` (hoặc \`/disease\` hoặc \`/booking\`)
+        - data: JSON (dữ liệu query từ database)
         - Gợi ý:
         - "..."
         - "..."
@@ -150,7 +143,12 @@ app.post('/api/chat', async (req, res) => {
 
         Trả về:
 
-        Route: \`/doctor\`
+        data: {
+            "doctors": [
+                { "name": "BS. Lê Văn C", "specialty": "Khoa Thần kinh" },
+                { "name": "BS. Phạm Thị D", "specialty": "Khoa Thần kinh" }
+            ]
+        }
 
         Gợi ý:
         - "Bạn có muốn xem lịch khám của bác sĩ không?"
@@ -161,7 +159,6 @@ app.post('/api/chat', async (req, res) => {
         Nếu đã rõ, hãy chỉ tập trung thực hiện đúng theo hướng dẫn trên mỗi khi có yêu cầu từ người dùng.
         `;
 
-        // User message: Kết hợp câu hỏi gốc và context
         const prompt = `
             Câu hỏi của người dùng: "${userQuestion}"
 
@@ -176,7 +173,6 @@ app.post('/api/chat', async (req, res) => {
             { role: "user", content: prompt }
         ];
 
-        // --- Bước 4: Gọi LLM API ---
         const response = await client.path("/chat/completions").post({
             body: {
                 messages: messagesForLLM,
@@ -186,7 +182,6 @@ app.post('/api/chat', async (req, res) => {
             }
         });
 
-        // --- Bước 5: Xử lý Response từ LLM ---
         if (isUnexpected(response)) {
             console.error("LLM API Error:", response.body);
             // Cố gắng lấy thông báo lỗi từ body nếu có
@@ -198,16 +193,14 @@ app.post('/api/chat', async (req, res) => {
 
         const advice = response.body.choices[0].message.content;
 
-        // --- Bước 6: Gửi kết quả về Frontend ---
         res.status(200).json({
             code: 200,
             message: "Success",
-            answer: advice // Đổi tên key từ 'data' thành 'answer' cho rõ ràng hơn
+            answer: advice 
         });
 
     } catch (err) {
         console.error("Error processing chat request:", err);
-        // Gửi lỗi chi tiết hơn nếu có thể
         res.status(500).json({
             code: 500,
             message: "Đã xảy ra lỗi trong quá trình xử lý yêu cầu.",

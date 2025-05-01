@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Bot Chat</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4; /* Light background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 400px; /* Typical chat widget size */
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px; /* Fixed height for demonstration */
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e0d9f6; /* Light purple background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-right: 10px;
+        }
+
+        .header .avatar img {
+            width: 25px; /* Adjust size of envelope */
+            height: auto;
+        }
+
+        .header .avatar .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background-color: #ff6347; /* Red badge color */
+            color: white;
+            font-size: 10px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid white;
+        }
+         .header .avatar .status-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background-color: #4CAF50; /* Green online color */
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+
+        .header .info {
+            flex-grow: 1;
+        }
+
+        .header .info .title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .header .info .status {
+            font-size: 12px;
+            color: #666;
+            margin: 0;
+        }
+
+        .header .close-button {
+            font-size: 20px;
+            color: #aaa;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f0f2f5; /* Light gray chat background */
+             display: flex; /* Sử dụng flexbox để sắp xếp các tin nhắn */
+             flex-direction: column; /* Tin nhắn xếp chồng lên nhau */
+        }
+
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column; /* Allow sender name above bubble */
+            max-width: 100%; /* Giới hạn chiều rộng của message container */
+        }
+
+        .message .sender {
+             font-size: 11px;
+             color: #555;
+             margin-bottom: 2px;
+        }
+
+        .message .bubble {
+            padding: 10px 12px;
+            border-radius: 18px;
+            max-width: 80%; /* Giới hạn chiều rộng của bubble */
+            word-wrap: break-word;
+            position: relative;
+        }
+        .message .bubble p {
+             margin: 0; /* Remove default paragraph margin */
+        }
+
+
+        /* Bot message styles */
+        .bot-message {
+            align-items: flex-start; /* Căn trái */
+        }
+        .bot-message .bubble {
+            background-color: #fff;
+            border-bottom-left-radius: 4px; /* Pointy corner */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+         .bot-message .sender {
+             visibility: hidden; /* Hide sender name for bot */
+         }
+
+
+        /* User message styles */
+        .user-message {
+            align-items: flex-end; /* Căn phải */
+            margin-left: auto; /* Đẩy tin nhắn sang phải */
+        }
+         .user-message .sender {
+             text-align: right;
+         }
+        .user-message .bubble {
+            background-color: #007bff; /* Blue color */
+            color: white;
+            border-bottom-right-radius: 4px; /* Pointy corner */
+        }
+
+        .user-message .bubble.action-button {
+            background-color: #007bff; /* Blue color */
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block; /* Make it fit content */
+            margin-top: 5px; /* Space above if text is present */
+            /* Các thuộc tính khác giữ nguyên từ .user-message .bubble */
+        }
+
+
+        .input-area {
+            display: flex;
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            align-items: center;
+        }
+
+        .input-area input[type="text"] {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .input-area .send-button {
+            background: none;
+            border: none;
+            color: #007bff; /* Blue color */
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 10px;
+             line-height: 1; /* Better vertical alignment for icon */
+        }
+         .input-area .send-button:hover {
+             color: #0056b3;
+         }
+
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 11px;
+            color: #888;
+            border-top: 1px solid #eee;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+         .footer a:hover {
+            text-decoration: underline;
+         }
+         /* Emoji basic styling - ensures they fit */
+         .bubble img.emoji {
+             height: 1em; /* Adjust as needed */
+             width: 1em; /* Adjust as needed */
+             vertical-align: middle;
+         }
+
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <div class="avatar">
+                 <!-- Sử dụng placeholder cho ảnh envelope -->
+                 <img src="https://img.icons8.com/material-outlined/24/000000/new-post.png" alt="Envelope icon"/>
+                 <span class="badge">5</span>
+                 <span class="status-dot"></span>
+            </div>
+            <div class="info">
+                <div class="title">Ticket Bot</div>
+                <div class="status">Online</div>
+            </div>
+            <div class="close-button">×</div>
+        </div>
+
+        <!-- Khu vực hiển thị tin nhắn -->
+        <div class="chat-messages">
+            <% // Bắt đầu vòng lặp EJS để duyệt qua từng tin nhắn trong mảng chatHistory %>
+            <% chatHistory.forEach(message => { %>
+                <% // Sử dụng biến 'message' trong mỗi lần lặp.
+                   // Các biến chatHistory, message được truyền từ res.render trong app.js %>
+
+                <% // Xác định class cho container tin nhắn (user hay bot) dựa vào sender %>
+                <div class="message <%= message.sender === 'You' ? 'user-message' : 'bot-message' %>">
+                    <% // Hiển thị tên người gửi (CSS sẽ ẩn cho bot) %>
+                    <span class="sender"><%= message.sender %></span>
+
+                    <% // Xác định class cho bubble tin nhắn.
+                       // Thêm class 'action-button' nếu type của tin nhắn là 'action' %>
+                    <div class="bubble <%= message.type === 'action' ? 'action-button' : '' %>">
+                        <% // Kiểm tra loại tin nhắn để hiển thị nội dung phù hợp %>
+                        <% if (message.type === 'action') { %>
+                            <!-- Nếu là tin nhắn loại 'action', hiển thị icon và text như nút -->
+                            <span role="img" aria-label="envelope">✉️</span> <%= message.text %>
+                        <% } else { %>
+                            <!-- Nếu là tin nhắn văn bản thông thường, hiển thị trong thẻ p -->
+                            <p><%= message.text %></p>
+                        <% } %>
+                    </div>
+                </div>
+            <% // Kết thúc vòng lặp EJS %>
+            <% }); %>
+
+            <!-- Lưu ý: Khu vực input và footer KHÔNG nằm trong vòng lặp history chat -->
+            <!-- ... (các phần input và footer ở dưới) ... -->
+
+        </div>
+
+        <!-- Khu vực nhập liệu tin nhắn -->
+        <div class="input-area">
+            <input type="text" placeholder="Type your message here">
+             <!-- Sử dụng icon SVG cho nút gửi -->
+             <button class="send-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+             </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Powered by <a href="#">ChatBot</a>
+        </div>
+    </div>
+</body>
+</html>
