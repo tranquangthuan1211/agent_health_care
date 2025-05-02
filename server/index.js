@@ -6,6 +6,7 @@ import rabbitmq from "./config/rabbitMq.js";
 const PORT = process.env.PORT || 3000;  
 import path from 'path'; 
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,16 +59,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.get('/', (req, res) => {
-    const chatHistory = [
-      { sender: 'Ticket Bot', text: '👋 Hi! What can I do for you today?', type: 'text' },
-      { sender: 'You', text: 'Create ticket', type: 'action' },
-      { sender: 'Ticket Bot', text: "Okay, let's get started then! 🚀", type: 'text' },
-      { sender: 'Ticket Bot', text: "What's your name?", type: 'text' },
-      { sender: 'You', text: 'Tom', type: 'text' }
-    ];
-  
-    res.render('index', { chatHistory: chatHistory });
+app.get('/', async (req, res) => {
+    const response = await fetch(`http://localhost:8080/api/v1/chat-history/26c09d76-291c-4003-ac03-45589c66c0d4`);
+    const chatHistory = await response.json();
+    console.log(chatHistory.data);
+    res.render('index', { chatHistory: chatHistory.data });
   });
 app.post('/api/chat', async (req, res) => {
     // Chú ý: Frontend nên gửi câu hỏi dưới dạng { "question": "Người dùng hỏi gì?" }
@@ -176,7 +172,7 @@ app.post('/api/chat', async (req, res) => {
         const response = await client.path("/chat/completions").post({
             body: {
                 messages: messagesForLLM,
-                temperature: 0.7, // Điều chỉnh độ "sáng tạo" của LLM (0.7 là giá trị phổ biến)
+                temperature: 0.7, 
                 top_p: 1,
                 model: model
             }

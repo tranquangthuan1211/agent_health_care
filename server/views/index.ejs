@@ -9,7 +9,7 @@
             font-family: sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4; /* Light background */
+            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,14 +18,14 @@
 
         .chat-container {
             width: 100%;
-            max-width: 400px; /* Typical chat widget size */
+            max-width: 400px;
             background-color: #fff;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            height: 600px; /* Fixed height for demonstration */
+            height: 600px;
         }
 
         .header {
@@ -40,7 +40,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #e0d9f6; /* Light purple background */
+            background-color: #e0d9f6;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -49,7 +49,7 @@
         }
 
         .header .avatar img {
-            width: 25px; /* Adjust size of envelope */
+            width: 25px;
             height: auto;
         }
 
@@ -57,7 +57,7 @@
             position: absolute;
             top: -2px;
             right: -2px;
-            background-color: #ff6347; /* Red badge color */
+            background-color: #ff6347;
             color: white;
             font-size: 10px;
             width: 16px;
@@ -74,7 +74,7 @@
             right: 2px;
             width: 8px;
             height: 8px;
-            background-color: #4CAF50; /* Green online color */
+            background-color: #4CAF50;
             border-radius: 50%;
             border: 1px solid white;
         }
@@ -107,16 +107,16 @@
             flex-grow: 1;
             padding: 15px;
             overflow-y: auto;
-            background-color: #f0f2f5; /* Light gray chat background */
-             display: flex; /* Sử dụng flexbox để sắp xếp các tin nhắn */
-             flex-direction: column; /* Tin nhắn xếp chồng lên nhau */
+            background-color: #f0f2f5;
+             display: flex;
+             flex-direction: column;
         }
 
         .message {
             margin-bottom: 10px;
             display: flex;
-            flex-direction: column; /* Allow sender name above bubble */
-            max-width: 100%; /* Giới hạn chiều rộng của message container */
+            flex-direction: column;
+            max-width: 100%;
         }
 
         .message .sender {
@@ -128,52 +128,49 @@
         .message .bubble {
             padding: 10px 12px;
             border-radius: 18px;
-            max-width: 80%; /* Giới hạn chiều rộng của bubble */
+            max-width: 80%;
             word-wrap: break-word;
             position: relative;
         }
         .message .bubble p {
-             margin: 0; /* Remove default paragraph margin */
+             margin: 0;
         }
 
 
-        /* Bot message styles */
         .bot-message {
-            align-items: flex-start; /* Căn trái */
+            align-items: flex-start;
         }
         .bot-message .bubble {
             background-color: #fff;
-            border-bottom-left-radius: 4px; /* Pointy corner */
+            border-bottom-left-radius: 4px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
          .bot-message .sender {
-             visibility: hidden; /* Hide sender name for bot */
+             visibility: hidden;
          }
 
 
-        /* User message styles */
         .user-message {
-            align-items: flex-end; /* Căn phải */
-            margin-left: auto; /* Đẩy tin nhắn sang phải */
+            align-items: flex-end;
+            margin-left: auto;
         }
          .user-message .sender {
              text-align: right;
          }
         .user-message .bubble {
-            background-color: #007bff; /* Blue color */
+            background-color: #007bff;
             color: white;
-            border-bottom-right-radius: 4px; /* Pointy corner */
+            border-bottom-right-radius: 4px;
         }
 
         .user-message .bubble.action-button {
-            background-color: #007bff; /* Blue color */
+            background-color: #007bff;
             color: white;
             padding: 10px 15px;
             cursor: pointer;
             text-align: center;
-            display: inline-block; /* Make it fit content */
-            margin-top: 5px; /* Space above if text is present */
-            /* Các thuộc tính khác giữ nguyên từ .user-message .bubble */
+            display: inline-block;
+            margin-top: 5px;
         }
 
 
@@ -184,6 +181,7 @@
             align-items: center;
         }
 
+        /* Thêm ID cho input field */
         .input-area input[type="text"] {
             flex-grow: 1;
             border: none;
@@ -192,15 +190,16 @@
             font-size: 14px;
         }
 
+        /* Thêm ID cho button */
         .input-area .send-button {
             background: none;
             border: none;
-            color: #007bff; /* Blue color */
+            color: #007bff;
             font-size: 20px;
             cursor: pointer;
             padding: 5px;
             margin-left: 10px;
-             line-height: 1; /* Better vertical alignment for icon */
+             line-height: 1;
         }
          .input-area .send-button:hover {
              color: #0056b3;
@@ -222,10 +221,9 @@
          .footer a:hover {
             text-decoration: underline;
          }
-         /* Emoji basic styling - ensures they fit */
          .bubble img.emoji {
-             height: 1em; /* Adjust as needed */
-             width: 1em; /* Adjust as needed */
+             height: 1em;
+             width: 1em;
              vertical-align: middle;
          }
 
@@ -235,7 +233,6 @@
     <div class="chat-container">
         <div class="header">
             <div class="avatar">
-                 <!-- Sử dụng placeholder cho ảnh envelope -->
                  <img src="https://img.icons8.com/material-outlined/24/000000/new-post.png" alt="Envelope icon"/>
                  <span class="badge">5</span>
                  <span class="status-dot"></span>
@@ -247,44 +244,25 @@
             <div class="close-button">×</div>
         </div>
 
-        <!-- Khu vực hiển thị tin nhắn -->
-        <div class="chat-messages">
-            <% // Bắt đầu vòng lặp EJS để duyệt qua từng tin nhắn trong mảng chatHistory %>
+        <div class="chat-messages" id="chatMessages">
             <% chatHistory.forEach(message => { %>
-                <% // Sử dụng biến 'message' trong mỗi lần lặp.
-                   // Các biến chatHistory, message được truyền từ res.render trong app.js %>
-
-                <% // Xác định class cho container tin nhắn (user hay bot) dựa vào sender %>
                 <div class="message <%= message.sender === 'You' ? 'user-message' : 'bot-message' %>">
-                    <% // Hiển thị tên người gửi (CSS sẽ ẩn cho bot) %>
                     <span class="sender"><%= message.sender %></span>
-
-                    <% // Xác định class cho bubble tin nhắn.
-                       // Thêm class 'action-button' nếu type của tin nhắn là 'action' %>
                     <div class="bubble <%= message.type === 'action' ? 'action-button' : '' %>">
-                        <% // Kiểm tra loại tin nhắn để hiển thị nội dung phù hợp %>
                         <% if (message.type === 'action') { %>
-                            <!-- Nếu là tin nhắn loại 'action', hiển thị icon và text như nút -->
                             <span role="img" aria-label="envelope">✉️</span> <%= message.text %>
                         <% } else { %>
-                            <!-- Nếu là tin nhắn văn bản thông thường, hiển thị trong thẻ p -->
                             <p><%= message.text %></p>
                         <% } %>
                     </div>
                 </div>
-            <% // Kết thúc vòng lặp EJS %>
             <% }); %>
-
-            <!-- Lưu ý: Khu vực input và footer KHÔNG nằm trong vòng lặp history chat -->
-            <!-- ... (các phần input và footer ở dưới) ... -->
-
         </div>
 
         <!-- Khu vực nhập liệu tin nhắn -->
         <div class="input-area">
-            <input type="text" placeholder="Type your message here">
-             <!-- Sử dụng icon SVG cho nút gửi -->
-             <button class="send-button">
+            <input type="text" id="messageInput" placeholder="Type your message here">
+             <button class="send-button" id="sendButton">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
              </button>
         </div>
@@ -294,5 +272,83 @@
             Powered by <a href="#">ChatBot</a>
         </div>
     </div>
+
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chatMessages');
+
+        function addMessageToChat(sender, text, type = 'text') {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender === 'You' ? 'user-message' : 'bot-message');
+
+            const senderSpan = document.createElement('span');
+            senderSpan.classList.add('sender');
+            senderSpan.textContent = sender;
+            messageDiv.appendChild(senderSpan);
+
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.classList.add('bubble');
+
+            if (type === 'action') {
+                bubbleDiv.classList.add('action-button');
+                 bubbleDiv.innerHTML = `<span role="img" aria-label="envelope">✉️</span> ${text}`; 
+            } else {
+                const textP = document.createElement('p');
+                textP.textContent = text; 
+                bubbleDiv.appendChild(textP);
+            }
+
+
+            messageDiv.appendChild(bubbleDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const messageText = messageInput.value.trim(); 
+
+            if (messageText === '') {
+                return;
+            }
+
+            addMessageToChat('You', messageText, 'text');
+
+            messageInput.value = '';
+
+            try {
+                const response = await fetch('/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ text: messageText })
+                });
+
+                if (response.ok) {
+                    const result = await response.json(); 
+                    console.log('Server response:', result);
+                } else {
+                    console.error('Lỗi khi gửi tin nhắn:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Lỗi kết nối:', error);
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+
+        messageInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                sendMessage(); 
+            }
+        });
+
+        window.addEventListener('load', () => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+
+    </script>
 </body>
 </html>
