@@ -127,7 +127,8 @@ app.post('/api/chat', async (req, res) => {
         - KHÔNG giải thích.
 
         Định dạng trả về:
-        - data: JSON (dữ liệu query từ database)
+        - data: trả về dữ liệu JSON từ database.
+        - Gợi ý: Danh sách các câu hỏi gợi ý tiếp theo cho người dùng.
         - Gợi ý:
         - "..."
         - "..."
@@ -143,7 +144,8 @@ app.post('/api/chat', async (req, res) => {
             "doctors": [
                 { "name": "BS. Lê Văn C", "specialty": "Khoa Thần kinh" },
                 { "name": "BS. Phạm Thị D", "specialty": "Khoa Thần kinh" }
-            ]
+            ],
+            "specialty": "Khoa Thần kinh"
         }
 
         Gợi ý:
@@ -188,11 +190,11 @@ app.post('/api/chat', async (req, res) => {
         }
 
         const advice = response.body.choices[0].message.content;
-
+        console.log(JSON.parse(advice));
         res.status(200).json({
             code: 200,
             message: "Success",
-            answer: advice 
+            advice 
         });
 
     } catch (err) {

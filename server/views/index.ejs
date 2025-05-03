@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket Bot Chat</title>
     <style>
+        /* --- CSS CHUNG --- */
         body {
             font-family: sans-serif;
             margin: 0;
@@ -25,7 +26,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            height: 600px;
+            height: 600px; 
         }
 
         .header {
@@ -40,7 +41,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #e0d9f6;
+            background-color: #e0d9f6; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -49,7 +50,7 @@
         }
 
         .header .avatar img {
-            width: 25px;
+            width: 25px; 
             height: auto;
         }
 
@@ -79,7 +80,6 @@
             border: 1px solid white;
         }
 
-
         .header .info {
             flex-grow: 1;
         }
@@ -107,15 +107,15 @@
             flex-grow: 1;
             padding: 15px;
             overflow-y: auto;
-            background-color: #f0f2f5;
-             display: flex;
-             flex-direction: column;
+            background-color: #f0f2f5; 
+            display: flex;
+            flex-direction: column; 
         }
 
         .message {
             margin-bottom: 10px;
             display: flex;
-            flex-direction: column;
+            flex-direction: column; 
             max-width: 100%;
         }
 
@@ -129,51 +129,114 @@
             padding: 10px 12px;
             border-radius: 18px;
             max-width: 80%;
-            word-wrap: break-word;
+            word-wrap: break-word; 
             position: relative;
         }
         .message .bubble p {
-             margin: 0;
+             margin: 0; 
         }
-
 
         .bot-message {
-            align-items: flex-start;
+            align-items: flex-start; 
         }
         .bot-message .bubble {
-            background-color: #fff;
-            border-bottom-left-radius: 4px;
+            background-color: #fff; 
+            border-bottom-left-radius: 4px; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
          .bot-message .sender {
-             visibility: hidden;
+             visibility: hidden; 
          }
 
-
+         /* --- User Message Styles --- */
         .user-message {
-            align-items: flex-end;
+            align-items: flex-end; 
             margin-left: auto;
         }
          .user-message .sender {
-             text-align: right;
+             text-align: right; 
          }
         .user-message .bubble {
             background-color: #007bff;
-            color: white;
-            border-bottom-right-radius: 4px;
+            color: white; 
+            border-bottom-right-radius: 4px; 
         }
 
         .user-message .bubble.action-button {
             background-color: #007bff;
             color: white;
             padding: 10px 15px;
-            cursor: pointer;
+            cursor: pointer; 
             text-align: center;
-            display: inline-block;
+            display: inline-block; 
             margin-top: 5px;
         }
 
+        /* --- Typing Indicator Style (cho bot message) --- */
+        .message.typing-indicator .bubble {
+            background-color: #e0e0e0; 
+            color: #333; 
+            font-style: italic; 
+            padding: 8px 12px;
+            max-width: fit-content;
 
+            display: flex; 
+            align-items: flex-end;
+        }
+         .message.typing-indicator .sender {
+             visibility: hidden; 
+         }
+
+         .message.typing-indicator .bubble p {
+             display: inline-block; 
+             margin: 0;
+         }
+
+
+         @keyframes typing {
+           0%, 80%, 100% {
+             transform: initial;
+             opacity: 1;
+           }
+           40% {
+             transform: translateY(-5px);
+             opacity: 0.5;
+           }
+         }
+
+         .message.typing-indicator .bubble p::after {
+             content: '.';
+             display: inline-block;
+             width: 4px; 
+             overflow: hidden;
+             vertical-align: bottom; 
+         }
+          .message.typing-indicator .bubble p::before {
+             content: '.'; 
+             display: inline-block;
+             width: 4px;
+             overflow: hidden;
+             vertical-align: bottom;
+         }
+         .message.typing-indicator .bubble p {
+             content: '.'; 
+             display: inline-block;
+             width: 4px;
+             overflow: hidden;
+             vertical-align: bottom;
+         }
+         .message.typing-indicator .bubble p {
+             animation: typing 1s infinite ease-in-out;
+         }
+         .message.typing-indicator .bubble p::before {
+             animation: typing 1s infinite ease-in-out -0.2s; /* Độ trễ */
+         }
+         .message.typing-indicator .bubble p::after {
+              animation: typing 1s infinite ease-in-out -0.4s; /* Độ trễ */
+         }
+
+
+        /* --- Input Area --- */
         .input-area {
             display: flex;
             padding: 10px 15px;
@@ -181,16 +244,14 @@
             align-items: center;
         }
 
-        /* Thêm ID cho input field */
         .input-area input[type="text"] {
             flex-grow: 1;
             border: none;
-            outline: none;
+            outline: none; 
             padding: 8px;
             font-size: 14px;
         }
 
-        /* Thêm ID cho button */
         .input-area .send-button {
             background: none;
             border: none;
@@ -199,13 +260,14 @@
             cursor: pointer;
             padding: 5px;
             margin-left: 10px;
-             line-height: 1;
+            line-height: 1; 
+            transition: color 0.2s ease;
         }
          .input-area .send-button:hover {
              color: #0056b3;
          }
 
-
+        /* --- Footer --- */
         .footer {
             text-align: center;
             padding: 10px;
@@ -221,11 +283,17 @@
          .footer a:hover {
             text-decoration: underline;
          }
+
          .bubble img.emoji {
              height: 1em;
              width: 1em;
              vertical-align: middle;
          }
+         .bubble span[role="img"] {
+             font-size: 1em;
+             vertical-align: middle;
+         }
+
 
     </style>
 </head>
@@ -233,6 +301,7 @@
     <div class="chat-container">
         <div class="header">
             <div class="avatar">
+
                  <img src="https://img.icons8.com/material-outlined/24/000000/new-post.png" alt="Envelope icon"/>
                  <span class="badge">5</span>
                  <span class="status-dot"></span>
@@ -245,10 +314,15 @@
         </div>
 
         <div class="chat-messages" id="chatMessages">
+            <% // Vòng lặp EJS để hiển thị lịch sử chat từ server %>
             <% chatHistory.forEach(message => { %>
+                <% // Dựa vào sender để xác định class (user hay bot) %>
                 <div class="message <%= message.sender === 'You' ? 'user-message' : 'bot-message' %>">
+                    <% // Hiển thị tên người gửi (CSS sẽ ẩn cho bot) %>
                     <span class="sender"><%= message.sender %></span>
+                    <% // Dựa vào type để thêm class 'action-button' %>
                     <div class="bubble <%= message.type === 'action' ? 'action-button' : '' %>">
+                        <% // Hiển thị nội dung dựa trên type %>
                         <% if (message.type === 'action') { %>
                             <span role="img" aria-label="envelope">✉️</span> <%= message.text %>
                         <% } else { %>
@@ -259,9 +333,10 @@
             <% }); %>
         </div>
 
-        <!-- Khu vực nhập liệu tin nhắn -->
         <div class="input-area">
+
             <input type="text" id="messageInput" placeholder="Type your message here">
+             <!-- ID cho button -->
              <button class="send-button" id="sendButton">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
              </button>
@@ -278,9 +353,13 @@
         const sendButton = document.getElementById('sendButton');
         const chatMessages = document.getElementById('chatMessages');
 
-        function addMessageToChat(sender, text, type = 'text') {
+        function addMessageToChat(sender, text, type = 'text', extraClass = null) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender === 'You' ? 'user-message' : 'bot-message');
+
+            if (extraClass) {
+                messageDiv.classList.add(extraClass);
+            }
 
             const senderSpan = document.createElement('span');
             senderSpan.classList.add('sender');
@@ -292,59 +371,88 @@
 
             if (type === 'action') {
                 bubbleDiv.classList.add('action-button');
-                 bubbleDiv.innerHTML = `<span role="img" aria-label="envelope">✉️</span> ${text}`; 
+                 bubbleDiv.innerHTML = `<span role="img" aria-label="envelope">✉️</span> ${text}`;
             } else {
                 const textP = document.createElement('p');
-                textP.textContent = text; 
+                textP.textContent = text;
                 bubbleDiv.appendChild(textP);
             }
 
-
             messageDiv.appendChild(bubbleDiv);
-            chatMessages.appendChild(messageDiv);
+            chatMessages.appendChild(messageDiv); // Thêm tin nhắn vào khu vực hiển thị
+
             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            return messageDiv;
+        }
+
+        function removeMessageFromChat(messageElement) {
+            if (messageElement && chatMessages.contains(messageElement)) {
+                chatMessages.removeChild(messageElement);
+            }
         }
 
         async function sendMessage() {
             const messageText = messageInput.value.trim(); 
+            messageText += "?"
 
-            if (messageText === '') {
-                return;
-            }
 
             addMessageToChat('You', messageText, 'text');
 
             messageInput.value = '';
 
+            const typingIndicator = addMessageToChat('Ticket Bot', '...', 'text', 'typing-indicator');
             try {
-                const response = await fetch('/send-message', {
-                    method: 'POST',
+                const response = await fetch('http://localhost:3000/api/chat', {
+                    method: 'POST', 
                     headers: {
-                        'Content-Type': 'application/json' 
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ text: messageText })
+                    body: JSON.stringify({ question: messageText }) 
                 });
 
-                if (response.ok) {
-                    const result = await response.json(); 
-                    console.log('Server response:', result);
+                if (response.ok) { 
+                    const result = await response.json();
+
+                    removeMessageFromChat(typingIndicator);
+
+
+                    if (result.botReply) {
+                        addMessageToChat('Ticket Bot', result.botReply, 'text');
+                    }
+
                 } else {
-                    console.error('Lỗi khi gửi tin nhắn:', response.status, response.statusText);
+                    // Xử lý lỗi từ server (status code 4xx, 5xx)
+                    // console.error('Lỗi khi gửi tin nhắn:', response.status, response.statusText);
+                    // // XÓA DẤU "..." KHI CÓ LỖI
+                    removeMessageFromChat(typingIndicator);
+                    // Có thể thêm tin nhắn lỗi vào giao diện nếu muốn
+                     addMessageToChat('Ticket Bot', `Lỗi xử lý trên server (${response.status}).`, 'text');
                 }
             } catch (error) {
+                // Xử lý lỗi kết nối mạng
                 console.error('Lỗi kết nối:', error);
+                 removeMessageFromChat(typingIndicator);
+                 addMessageToChat('Ticket Bot', 'Không thể kết nối đến server.', 'text');
             }
+            // Bạn cũng có thể sử dụng khối finally để đảm bảo typingIndicator luôn bị xóa
+            // finally {
+            //     removeMessageFromChat(typingIndicator);
+            // }
         }
 
         sendButton.addEventListener('click', sendMessage);
 
         messageInput.addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
-                event.preventDefault(); 
-                sendMessage(); 
+                event.preventDefault();
+                sendMessage();
             }
         });
 
+        // --- Khác ---
+
+        // Tự động cuộn xuống dưới cùng khi trang được tải xong
         window.addEventListener('load', () => {
             chatMessages.scrollTop = chatMessages.scrollHeight;
         });
