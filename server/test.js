@@ -58,8 +58,8 @@ const clinics = [
 
 // --- Cấu hình Azure OpenAI ---
 // Đảm bảo các biến môi trường này được thiết lập đúng trong file .env của bạn
-const azureApiKey = process.env.AZURE_OPENAI_API_KEY;
-const azureEndpoint = process.env.AZURE_OPENAI_API_ENDPOINT;
+const azureApiKey = process.env.OPENAI_API_KEY;
+const azureEndpoint = process.env.OPENAI_API_ENDPOINT;
 const azureDeploymentName = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || "gpt-4o-mini-deployment"; // Thay bằng tên deployment của bạn
 
 if (!azureApiKey || !azureEndpoint || !azureDeploymentName) {
@@ -416,172 +416,26 @@ Nếu không có công cụ nào phù hợp, hãy trả lời câu hỏi bằng 
         const initialResponse = await client.path("/chat/completions").post({
             body: {
                 messages: messagesForLLM,
-                functions: availableFunctions, // Cung cấp danh sách các hàm
-                function_call: "auto", // Cho phép LLM tự quyết định có gọi hàm nào không
                 temperature: 0.7,
                 top_p: 1,
-                 // model: model // SAI - Azure dùng deployment_name trong body
-                 deployment_name: azureDeploymentName // SỬA: Sử dụng deployment_name
+                model:"openai/gpt-4.1"// Sử dụng deployment_name
             }
         });
 
          if (isUnexpected(initialResponse)) {
-             const errorBody = await initialResponse.json(); // Try to get error details
+             // SỬA LỖI Ở ĐÂY: Truy cập body trực tiếp thay vì gọi .json()
+             const errorBody = initialResponse.body;
              console.error("Azure OpenAI API Error (Initial Call):", initialResponse.status, errorBody);
-             // Trả về lỗi chi tiết từ API nếu có
-             throw new Error(`Azure OpenAI API Error: ${initialResponse.status} - ${errorBody.error?.message || JSON.stringify(errorBody)}`);
+             // Trả về lỗi chi tiết từ API nếu có (sử dụng optional chaining ?. để an toàn)
+             throw new Error(`Azure OpenAI API Error: ${initialResponse.status} - ${errorBody?.error?.message || JSON.stringify(errorBody)}`);
          }
-
-        const message = initialResponse.body.choices[0].message; // Phản hồi đầu tiên từ LLM
-        let finalResponseContent = message.content; // Nội dung text mặc định (nếu LLM không gọi hàm)
-        let backendApiResult = null; // Kết quả từ API backend (sẽ lưu cả success/message/data)
-        let triggeredFunction = null; // Tên hàm đã được gọi (nếu có)
-
-
-        // Bước 2: Kiểm tra xem LLM có yêu cầu gọi hàm nào không
-        if (message.function_call) {
-            const functionName = message.function_call.name;
-            let functionArgs = {};
-            triggeredFunction = functionName;
-
-            try {
-                 // function_call.arguments là một string JSON, cần parse
-                 functionArgs = JSON.parse(message.function_call.arguments);
-                 console.log(`--- LLM yêu cầu gọi hàm: "${functionName}" với đối số: ${JSON.stringify(functionArgs)} ---`);
-
-                 // --- Bổ sung các tham số cố định nếu cần (ví dụ: userId) ---
-                 // Nếu API backend của bạn cần userId cho các hàm này, thêm vào đây
-                 if (functionName === 'get_user_appointments' || functionName === 'book_appointment') {
-                      functionArgs.userId = userId; // Gắn userId thật vào tham số nếu API cần
-                 }
-                 // -------------------------------------------------------
-
-
-                // Bước 3: Thực thi hàm (gọi API backend thực tế của bạn)
-                // Thay thế 'callBackendApi' bằng code thực tế gọi API backend của bạn
-                backendApiResult = await callBackendApi(functionName, functionArgs);
-                console.log(`--- Kết quả từ backend cho hàm "${functionName}": ${JSON.stringify(backendApiResult)} ---`);
-
-                // Bước 4: Gửi lại kết quả từ API backend cho LLM để tạo câu trả lời cuối cùng
-                // Thêm tin nhắn function_call và tin nhắn function_response vào lịch sử để LLM hiểu
-                const secondMessages = [
-                     ...messagesForLLM, // Lịch sử cũ + tin nhắn user
-                     message, // Tin nhắn function_call từ LLM (role: assistant, có function_call)
-                     {
-                         role: "function",
-                         name: functionName, // Tên hàm đã gọi
-                         content: JSON.stringify(backendApiResult) // Kết quả từ API backend (dạng string JSON)
-                     }
-                ];
-
-                console.log("--- Gọi Azure OpenAI API lần 2 (tạo câu trả lời cuối cùng) ---");
-                const secondResponse = await client.path("/chat/completions").post({
-                     body: {
-                        messages: secondMessages,
-                        // Không cần gửi lại 'functions' trừ khi bạn muốn LLM gọi hàm tiếp theo (chained calls)
-                        temperature: 0.7,
-                        top_p: 1,
-                         // model: model // SAI - Azure dùng deployment_name
-                         deployment_name: azureDeploymentName // SỬA: Sử dụng deployment_name
-                     }
-                });
-
-                if (isUnexpected(secondResponse)) {
-                     const errorBody = await secondResponse.json();
-                     console.error("Azure OpenAI API Error (Second Call):", secondResponse.status, errorBody);
-                     // Fallback: sử dụng message từ backend API nếu LLM call thứ 2 lỗi
-                     finalResponseContent = backendApiResult?.message || `Xin lỗi, tôi gặp vấn đề khi tạo câu trả lời cuối cùng dựa trên kết quả hệ thống cho chức năng "${functionName}".`;
-                 } else {
-                    // Lấy nội dung phản hồi cuối cùng từ LLM sau khi nó đọc kết quả API
-                    finalResponseContent = secondResponse.body.choices[0].message.content;
-                    console.log("--- LLM Final Response Content: ---");
-                    console.log(finalResponseContent);
-                    console.log("-----------------------------------");
-                 }
-
-
-            } catch (parseOrApiError) {
-                console.error(`[User ${userId}] Lỗi khi xử lý function call ("${functionName}") hoặc gọi API backend:`, parseOrApiError);
-                 // Trả lời lỗi cho người dùng nếu có lỗi xảy ra trong quá trình gọi hàm/API
-                finalResponseContent = `Xin lỗi, tôi gặp vấn đề khi xử lý yêu cầu của bạn${triggeredFunction ? ` liên quan đến chức năng "${triggeredFunction}"` : ''}. Vui lòng thử lại sau.`;
-                // Đảm bảo backendApiResult là null hoặc có định dạng lỗi nếu cần
-                backendApiResult = { success: false, message: parseOrApiError.message || "Lỗi không xác định khi gọi backend.", data: null };
-            }
-
-        } else {
-             // Bước 2b: LLM không yêu cầu gọi hàm (ví dụ: câu hỏi chung chung, chào hỏi, không hiểu)
-             // finalResponseContent đã có từ initialResponse.body.choices[0].message.content
-             console.log("--- LLM trả lời text thông thường, không gọi hàm. ---");
-             console.log(finalResponseContent);
-             console.log("-----------------------------------");
-             // Trong trường hợp này, không có kết quả backend cụ thể, set null
-             backendApiResult = null;
-        }
-
-        // --- Chuẩn bị gợi ý và dữ liệu trả về cho Frontend ---
-        // Bạn có thể tạo suggestions dựa trên hàm vừa gọi, kết quả từ backend, hoặc nội dung trả lời
-        let suggestions = [];
-
-        // Logic tạo gợi ý dựa trên hàm đã gọi hoặc nội dung trả lời
-        if (triggeredFunction === 'search_doctors' && backendApiResult?.success && backendApiResult.data?.length > 0) {
-             suggestions = ["Đặt lịch với một bác sĩ trong danh sách", "Tìm bác sĩ chuyên khoa khác?", "Tìm phòng khám của bác sĩ này?"];
-        } else if (triggeredFunction === 'search_doctors' && backendApiResult?.success && backendApiResult.data?.length === 0) {
-             suggestions = ["Tìm bác sĩ chuyên khoa khác?", "Quay lại tìm bệnh?", "Đặt lịch khám chung?"];
-        } else if (triggeredFunction === 'get_disease_info' && backendApiResult?.success) {
-             // Cố gắng trích xuất specialtyId từ diseaseName nếu có trong dummy data
-             const matchedDisease = diseases.find(d => backendApiResult.data?.name.toLowerCase().includes(d.name.toLowerCase()));
-             if (matchedDisease) {
-                 const spec = specialties.find(s => s.id === matchedDisease.specialtyId);
-                 if (spec) {
-                     suggestions.push(`Tìm bác sĩ chuyên khoa ${spec.name}?`);
-                 }
-             }
-             suggestions.push("Các triệu chứng thường gặp là gì?"); // Có thể là câu hỏi chung hoặc gọi hàm khác
-             suggestions.push("Cách phòng ngừa bệnh?"); // Có thể là câu hỏi chung
-        }
-        else if (triggeredFunction === 'book_appointment' && backendApiResult?.success) {
-             suggestions = ["Xem lại lịch hẹn đã đặt", "Tìm bác sĩ khác?", "Hỏi về bệnh lý?"];
-             if (backendApiResult.data?.clinicId) {
-                  // Thêm gợi ý xem thông tin phòng khám nếu data booking trả về clinicId
-                  // Sử dụng tên phòng khám nếu có, không thì dùng ID
-                  const clinic = clinics.find(c => c.id === backendApiResult.data.clinicId);
-                  suggestions.push(`Thông tin phòng khám ${clinic?.name || backendApiResult.data.clinicId}?`);
-             }
-        } else if (triggeredFunction === 'get_user_appointments' && backendApiResult?.success && backendApiResult.data?.length > 0) {
-             suggestions = ["Đặt lịch hẹn mới?", "Tìm bác sĩ?", "Hỏi về bệnh lý?"];
-             // Có thể thêm gợi ý xem thông tin phòng khám cho lịch hẹn đầu tiên
-              if (backendApiResult.data[0]?.clinicId) {
-                  const clinic = clinics.find(c => c.id === backendApiResult.data[0].clinicId);
-                  suggestions.push(`Thông tin phòng khám ${clinic?.name || backendApiResult.data[0].clinicId}?`);
-              }
-        } else if (triggeredFunction === 'get_user_appointments' && backendApiResult?.success && backendApiResult.data?.length === 0) {
-             suggestions = ["Đặt lịch hẹn mới?", "Tìm bác sĩ?", "Hỏi về bệnh lý?"];
-        }
-        else if (triggeredFunction === 'get_clinic_details' && backendApiResult?.success) {
-             suggestions = ["Xem lịch hẹn tại phòng khám này", "Tìm bác sĩ tại đây?", "Chỉ đường đến phòng khám?"];
-        }
-        // Gợi ý mặc định nếu không có hàm nào được gọi, kết quả không rõ ràng, hoặc là câu hỏi chung
-        // Chỉ thêm gợi ý mặc định nếu chưa có gợi ý nào được tạo từ logic trên
-        if (suggestions.length === 0 || finalResponseContent.length < 50) { // Thêm gợi ý mặc định nếu câu trả lời LLM quá ngắn (có thể là LLM không hiểu rõ hoặc chỉ trả lời ngắn gọn)
-             suggestions = ["Tìm bác sĩ chuyên khoa?", "Đặt lịch khám?", "Tôi muốn hỏi về bệnh X."];
-        }
-
-
-        // Bước 5: Trả kết quả về cho Frontend
-        res.status(200).json({
-            code: 200,
-            message: "Success",
-            // Nội dung chat phản hồi cho người dùng (từ LLM)
-            response: finalResponseContent,
-            // Dữ liệu trả về có cấu trúc từ API backend (chỉ trả phần data nếu API call thành công)
-            // Frontend có thể dùng `data` này để render UI đặc biệt (ví dụ: danh sách bác sĩ có thể click)
-            data: backendApiResult?.success ? backendApiResult.data : null,
-             // Thông tin hàm đã gọi và kết quả message từ backend (để debug hoặc UI đặc biệt ở frontend)
-             backendResultInfo: backendApiResult ? { success: backendApiResult.success, message: backendApiResult.message, function: triggeredFunction, functionArgs: backendApiResult.functionArgs } : null, // Thêm functionArgs vào đây để debug
-            // Danh sách gợi ý hành động tiếp theo
-            suggestions: suggestions
-        });
-
+         return res.status(200).json({
+                code: 200,
+                message: "OK",
+                data: {
+                    content: initialResponse.body.choices[0].message.content, // Nội dung phản hồi từ LLM
+                }
+            });
     } catch (err) {
         console.error(`[User ${userId}] Error processing chat request:`, err);
         // Xử lý lỗi chung

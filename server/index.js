@@ -43,7 +43,7 @@ const doctors = [
 
 const token = process.env.OPENAI_API_KEY; 
 const endpoint = process.env.OPENAI_API_ENDPOINT; 
-const model = process.env.OPENAI_CHAT_MODEL || "openai/gpt-4o-mini";
+const model = process.env.OPENAI_CHAT_MODEL || "openai/gpt-4.1";
 // ---------------------------------------------------------------------------------
 const availableFunctions = [
     {
@@ -303,10 +303,10 @@ if (!token || !endpoint) {
     process.exit(1);
 }
 
-const client = ModelClient(
+ const client = ModelClient(
     endpoint,
     new AzureKeyCredential(token),
-);
+  );
 
 const app = express();
 app.use(express.json());
@@ -427,11 +427,10 @@ app.post('/api/chat', async (req, res) => {
 
         const response = await client.path("/chat/completions").post({
             body: {
-                messages: messagesForLLM,
-                // functions: availableFunctions,
-                temperature: 0.7, 
-                top_p: 1,
-                model: model
+            messages: messagesForLLM,
+            temperature: 1.0,
+            top_p: 1.0,
+            model: model
             }
         });
 
@@ -445,17 +444,17 @@ app.post('/api/chat', async (req, res) => {
         }
 
         const advice = response.body.choices[0].message.content;
-        const [jsonPart, suggestionsPart] = advice.split("Gợi ý:");
-        const jsonStr = jsonPart.trim().replace(/^data:\s*/, '');
-        let data;
-        data = JSON.parse(jsonStr);
-        const suggestions = suggestionsPart.trim().split("\n- ").filter(Boolean).map(s => s.replace(/^"|"$/g, ''));
+        // const [jsonPart, suggestionsPart] = advice.split("Gợi ý:");
+        // const jsonStr = jsonPart.trim().replace(/^data:\s*/, '');
+        // let data;
+        // data = JSON.parse(jsonStr);
+        // const suggestions = suggestionsPart.trim().split("\n- ").filter(Boolean).map(s => s.replace(/^"|"$/g, ''));
         // console.log(JSON.parse(advice));
         res.status(200).json({
             code: 200,
             message: "Success",
             data : data,
-            suggestions: suggestions
+            // suggestions: suggestions
         });
 
     } catch (err) {
