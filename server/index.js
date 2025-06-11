@@ -7,38 +7,17 @@ const PORT = process.env.PORT || 3000;
 import path from 'path'; 
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch'; 
+import { specialties, diseases, doctors } from './mockData.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-const specialties = [
-    { id: 1, name: "Khoa Nội Tổng quát" },
-    { id: 2, name: "Khoa Tim mạch" },
-    { id: 3, name: "Khoa Da liễu" },
-    { id: 4, name: "Khoa Thần kinh" },
-    
-    
-];
-
-const diseases = [
-    { id: 101, name: "Cảm cúm", specialtyId: 1 },
-    { id: 102, name: "Đau đầu", specialtyId: 4 },
-    { id: 103, name: "Cao huyết áp", specialtyId: 2 },
-    { id: 104, name: "Mụn trứng cá", specialtyId: 3 },
-    { id: 105, name: "Tiểu đường", specialtyId: 1 },
-     { id: 106, name: "Đột quỵ", specialtyId: 4 },
-    // Thêm các bệnh khác
-];
-
-const doctors = [
-    { id: 1001, name: "BS. Nguyễn Văn A", specialtyId: 1 },
-    { id: 1002, name: "BS. Trần Thị B", specialtyId: 2 },
-    { id: 1003, name: "BS. Lê Văn C", specialtyId: 3 },
-    { id: 1004, name: "BS. Phạm Thị D", specialtyId: 4 },
-    { id: 1005, name: "BS. Hoàng Văn E", specialtyId: 1 },
-     { id: 1006, name: "BS. Phan Thị F", specialtyId: 4 },
+// Mock clinics data
+const clinics = [
+    { id: "clinic_hcm_1", name: "Phòng khám Quốc tế Sài Gòn", address: "123 Nguyễn Huệ, Q1, TP.HCM", phone: "028-1234-5678", hours: "8:00-17:00" },
+    { id: "clinic_hn_1", name: "Bệnh viện Đa khoa Trung ương Hà Nội", address: "456 Lê Duẩn, Hai Bà Trưng, Hà Nội", phone: "024-8765-4321", hours: "7:00-18:00" }
 ];
 
 const token = process.env.OPENAI_API_KEY; 
@@ -315,11 +294,13 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.get('/', async (req, res) => {
-    const response = await fetch(`http://localhost:8080/api/v1/chat-history/26c09d76-291c-4003-ac03-45589c66c0d4`);
-    const chatHistory = await response.json();
-    console.log(chatHistory.data);
-    res.render('index', { chatHistory: chatHistory.data });
-  });
+    // Mock chat history for demo
+    const mockChatHistory = [
+        { id: 1, message: "Chào bạn! Tôi có thể giúp gì cho bạn?", sender: "bot", timestamp: new Date() },
+        { id: 2, message: "Xin chào, tôi muốn tìm bác sĩ chuyên khoa tim mạch", sender: "user", timestamp: new Date() }
+    ];
+    res.render('index', { chatHistory: mockChatHistory });
+});
 app.post('/api/chat', async (req, res) => {
     // Chú ý: Frontend nên gửi câu hỏi dưới dạng { "question": "Người dùng hỏi gì?" }
     const userQuestion = req.body.question;
@@ -444,16 +425,19 @@ app.post('/api/chat', async (req, res) => {
         }
 
         const advice = response.body.choices[0].message.content;
-        // const [jsonPart, suggestionsPart] = advice.split("Gợi ý:");
-        // const jsonStr = jsonPart.trim().replace(/^data:\s*/, '');
-        // let data;
-        // data = JSON.parse(jsonStr);
-        // const suggestions = suggestionsPart.trim().split("\n- ").filter(Boolean).map(s => s.replace(/^"|"$/g, ''));
-        // console.log(JSON.parse(advice));
+        
+        // For now, return the advice directly. You can parse and structure it later
+        const mockData = {
+            response: advice,
+            doctors: suggestedDoctors,
+            diseases: matchedDiseases,
+            specialties: matchedSpecialties
+        };
+        
         res.status(200).json({
             code: 200,
             message: "Success",
-            data : data,
+            data: mockData,
             // suggestions: suggestions
         });
 
@@ -470,8 +454,9 @@ app.post('/send-email', async (req, res) => {
     const { to, subject, body } = req.body;
 
     try {
-        await rabbitmq.publish('email.send', { to, subject, body });
-        res.json({ message: 'Email task published to RabbitMQ' });
+        // Temporarily disabled for testing
+        // await rabbitmq.publish('email.send', { to, subject, body });
+        res.json({ message: 'Email functionality temporarily disabled for testing' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Failed to publish message' });
@@ -479,7 +464,10 @@ app.post('/send-email', async (req, res) => {
 });
 const startServer = async () => {
     try {
-        await rabbitmq.connect(); // kết nối RabbitMQ
+        // Temporarily disable RabbitMQ connection for testing
+        // await rabbitmq.connect(); // kết nối RabbitMQ
+        console.log('RabbitMQ connection disabled for testing');
+        
         app.listen(PORT, () => {
             console.log(`Server is running on http://localhost:${PORT}`);
         });

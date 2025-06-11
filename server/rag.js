@@ -87,7 +87,9 @@ async function generateResponse(query, documents) {
       .join('\n\n');
     
     // Tạo system prompt
-    const systemPrompt = `Bạn là trợ lý y tế AI. Hãy dựa vào thông tin y tế được cung cấp để trả lời câu hỏi của người dùng một cách chính xác, đầy đủ và dễ hiểu. Chỉ sử dụng thông tin được cung cấp và kiến thức y tế phổ biến. Nếu không đủ thông tin để trả lời, hãy thừa nhận điều đó và cung cấp thông tin chung phù hợp.
+    const systemPrompt = `Bạn là trợ lý y tế AI. Hãy dựa vào thông tin y tế được cung cấp để trả lời câu hỏi của người dùng một cách chính xác, đầy đủ và dễ hiểu. Chỉ sử dụng thông tin được cung cấp và kiến thức y tế phổ biến. Trong trường hợp không đủ thông tin để trả lời, hãy thừa nhận điều đó và cung cấp thông tin chung phù hợp.
+
+QUAN TRỌNG: Khi trả lời bằng tiếng Việt, tránh sử dụng từ "nếu" - thay vào đó hãy dùng các từ thay thế như "khi", "trong trường hợp", "với", "đối với", hoặc viết lại câu để tránh câu điều kiện.
 
 Thông tin y tế có liên quan:
 ${context}`;
