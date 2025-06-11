@@ -1,2 +1,7 @@
 node_modules/
 .env
+# Bỏ qua node_modules trong chat/ui
+/api_chatbot/serverChat/node_modules/
+
+# Bỏ qua file .env trong chat/ui
+/api_chatbot/server/Chat.env
