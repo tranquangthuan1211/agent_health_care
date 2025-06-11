@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import amqp from 'amqplib';
+import healthCareAI from './llm-model.js';
 
 const EXCHANGE = 'chatbot_exchange';
 const QUEUE_NAME = 'emailQueue';
@@ -26,15 +27,49 @@ class Consumer {
 
             console.log('Consumer is waiting for messages...');
 
-            this.channel.consume(this.queue, (msg) => {
+            this.channel.consume(this.queue, async (msg) => {
                 if (msg !== null) {
                     const messageContent = JSON.parse(msg.content.toString());
 
-                    // Xử lý nội dung message
                     console.log('Received message:', messageContent);
-                    console.log(`Sending email to: ${messageContent.to}`);
+                    console.log(`Processing health query from: ${messageContent.to}`);
                     console.log(`Subject: ${messageContent.subject}`);
-                    console.log(`Body: ${messageContent.body}`);
+                    console.log(`Query: ${messageContent.body}`);
+
+                    try {
+                        // Check if this is an emergency query
+                        if (healthCareAI.isEmergencyQuery(messageContent.body)) {
+                            const emergencyResponse = healthCareAI.getEmergencyResponse();
+                            console.log('Emergency detected - sending emergency response');
+                            console.log('Response:', emergencyResponse.response);
+                        } else {
+                            // Process regular health query with AI
+                            console.log('Processing with AI model...');
+                            const aiResult = await healthCareAI.processHealthQuery(
+                                messageContent.body,
+                                {
+                                    // Extract any additional context from the message
+                                    symptoms: messageContent.symptoms,
+                                    age: messageContent.age,
+                                    gender: messageContent.gender,
+                                    medications: messageContent.medications
+                                }
+                            );
+
+                            if (aiResult.success) {
+                                console.log('AI Response:', aiResult.response);
+                                if (aiResult.usage) {
+                                    console.log('Token usage:', aiResult.usage);
+                                }
+                            } else {
+                                console.error('AI processing failed:', aiResult.error);
+                                console.log('Fallback response:', aiResult.response);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error processing health query:', error);
+                        console.log('Sending fallback response due to processing error');
+                    }
 
                     this.channel.ack(msg);
                 }
