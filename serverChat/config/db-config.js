@@ -1,16 +1,14 @@
 import 'dotenv/config';
-const mysql = require('mysql2/promise');
-const config = require('./index');
-const logger = require('../utils/logger');
+import mysql from 'mysql2/promise';
 // Create connection pool
-console.log(config.database.host, config.database.user, config.database.password, config.database.database);
+// console.log(config.database.host, config.database.user, config.database.password, config.database.database);
 const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER ,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME || "chat_bot_health_care",
   waitForConnections: true,
-  connectionLimit: config.database.connectionLimit,
+  connectionLimit: 10,
   queueLimit: 0,
   // acquireTimeout: 60000,
   multipleStatements: true
@@ -42,11 +40,11 @@ async function initDatabase() {
 
 
     connection.release();
-    logger.info('✅ Database tables initialized successfully');
+    console.log('✅ Database tables initialized successfully');
   } catch (error) {
-    logger.error('❌ Database initialization error:', error);
+    console.error('❌ Database initialization error:', error);
     throw error;
   }
 }
 
-module.exports = { pool, initDatabase };
+export { pool, initDatabase };
