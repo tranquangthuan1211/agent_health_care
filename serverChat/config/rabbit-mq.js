@@ -4,8 +4,8 @@ import amqp from 'amqplib';
 import healthCareAI from './llm-model.js';
 
 const EXCHANGE = 'chatbot_exchange';
-const QUEUE_NAME = 'emailQueue';
-const ROUTING_KEY = 'email.send';
+const QUEUE_NAME = 'messageQueue';
+const ROUTING_KEY = 'message.send';
 
 class Consumer {
     constructor(exchange = EXCHANGE, queue = QUEUE_NAME, routingKey = ROUTING_KEY) {
