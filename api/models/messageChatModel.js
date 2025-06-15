@@ -2,7 +2,7 @@ import { pool } from "../config/db-config.js";
 class MessagesChatModel {
   static async createHistoryChat(userId, message, type) {
     const query = `
-      INSERT INTO history_chats (user_id, message, type)
+      INSERT INTO messages (user_id, message, type)
       VALUES (?, ?, ?)
     `;
     const [result] = await pool.execute(query, [userId, message, type]);

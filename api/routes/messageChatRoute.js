@@ -6,7 +6,7 @@ function useMessageChatRoute(){
     router.get("/:chatId", messageController.getHistoryChatsByUserId);
     
 
-    // router.post("/", messageController.createMessage);
+    router.post("/chat", messageController.createHistoryChat);
     
     // // Route to delete a message by ID
     // router.delete("/:messageId", messageController.deleteMessage);

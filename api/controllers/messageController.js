@@ -2,9 +2,11 @@ import MessagesChatService from "../services/messageChatService.js";
 class MessageController {
     async createHistoryChat(req, res) {
         try {
+            // console.log("Creating history chat with data:", req.body);
             const { userId, message,type } = req.body;
+            console.log("Received data:", { userId, message, type });
             const chat = await MessagesChatService.createHistoryChat(userId, message,type);
-            res.status(201).json(chat);
+            res.status(201).json({ success: true, chatId: chat });
         } catch (error) {
             res.status(400).json({ error: error.message });
         }

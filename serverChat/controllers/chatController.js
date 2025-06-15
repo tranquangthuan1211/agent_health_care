@@ -1,5 +1,7 @@
 
 import healthCareAI from '../config/llm-model.js';
+import rabbitMq from '../config/rabbitMq.js';
+import RabbitMQ from "../config/rabbitMq.js"
 class ChatController {
     async index(req, res) {
         res.send("hello from chatController");
@@ -15,8 +17,14 @@ class ChatController {
             }
         
             console.log(`Received chat request: ${message}`);
-        
-                // Check for emergency queries
+            const routingKey = 'chatbot.request';
+            await RabbitMQ.publish(routingKey, {
+                message,
+                userId: 1,
+                type: "request"
+            });
+
+
             if (healthCareAI.isEmergencyQuery(message)) {
                 const emergencyResponse = healthCareAI.getEmergencyResponse();
                 return res.json({
@@ -27,7 +35,17 @@ class ChatController {
             }
         
             const result = await healthCareAI.processHealthQuery(message, context);
-        
+            console.log('AI response:', result.response);
+            if (!result || !result.response) {
+                return res.status(500).json({ 
+                    error: 'Failed to get a valid response from AI' 
+                });
+            }
+            rabbitMq.publish(routingKey, {
+                message: result.response,
+                userId: 1,
+                type: "response"
+            });
             res.json({
                 response: result.response,
                 success: result.success,
