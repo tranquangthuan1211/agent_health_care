@@ -5,7 +5,7 @@ const router = express.Router();
 
 function useRouteDoctor() {
     // Get all doctors
-    router.get("/doctors", doctorController.getDoctors);
+    router.get("/", doctorController.getDoctors);
 
     return router;
 }
