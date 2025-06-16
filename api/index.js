@@ -3,6 +3,7 @@ import userRoute from './routes/userRoute.js';
 import useMessageChatRoute from './routes/messageChatRoute.js';
 import useRouteDoctor from './routes/doctorRoute.js';
 import useRouteDisease from './routes/diseaseRoute.js';
+import useRouteSpecialty from './routes/specialtyRoute.js';
 import { initDatabase } from './config/db-config.js';
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -15,6 +16,7 @@ app.use('/api',userRoute());
 app.use('/api/doctors', useRouteDoctor());
 app.use('/api/chat', useMessageChatRoute());
 app.use('/api/diseases', useRouteDisease());
+app.use('/api/specialties', useRouteSpecialty());
 
 const startServer = async () => {
     try {

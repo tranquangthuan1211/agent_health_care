@@ -1,4 +1,4 @@
-import SpecialtyModel from "../models/specialtyModel";
+import SpecialtyModel from "../models/specialtyModel.js";
 
 class SpecialtyService {
     async getAllSpecialties() {

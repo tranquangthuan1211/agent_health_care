@@ -3,12 +3,12 @@ import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
 import { specialties, diseases, doctors } from '../../renderUi/mockData.js';
 import requestPrompt from "../promt/requestProme.js"
+import doctorFunction from '../functionCalling/doctorFunction.js';
 
 class HealthCareAIModel {
     constructor() {
         this.endpoint = "https://models.inference.ai.azure.com";
         this.modelName = "gpt-4o-mini"; // You can change this to other available models
-        
         this.client = ModelClient(
             this.endpoint, 
             new AzureKeyCredential(process.env.GITHUB_TOKEN)
