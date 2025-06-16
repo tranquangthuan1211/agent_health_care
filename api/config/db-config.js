@@ -52,6 +52,88 @@ async function initDatabase() {
     ) ENGINE=InnoDB
     `);
 
+    await connection.execute(`
+    CREATE TABLE IF NOT EXISTS Patients (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        age INT NOT NULL,
+        gender ENUM('male', 'female', 'other') NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        phone VARCHAR(15) NOT NULL,
+        email VARCHAR(100) NOT NULL,
+        note TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB
+    `);
+    await connection.execute(`
+    CREATE TABLE IF NOT EXISTS Clinics (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        phone VARCHAR(15) NOT NULL,
+        email VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB
+    `);
+    await connection.execute(`
+    CREATE TABLE IF NOT EXISTS Specialties (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB
+    `);
+    await connection.execute(`
+    CREATE TABLE IF NOT EXISTS Diseases (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        specialty_id INT NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (specialty_id) REFERENCES Specialties(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    `);
+    await connection.execute(`
+    CREATE TABLE IF NOT EXISTS Doctors (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        specialty_id INT NOT NULL,
+        clinic_id INT NOT NULL,
+        phone VARCHAR(15) NOT NULL,
+        email VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (specialty_id) REFERENCES Specialties(id) ON DELETE CASCADE,
+        FOREIGN KEY (clinic_id) REFERENCES Clinics(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    `);
+    await connection.execute(`
+    CREATE TABLE IF NOT EXISTS Appointments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        patient_id INT NOT NULL,
+        doctor_id INT NOT NULL,
+        appointment_date DATETIME NOT NULL,
+        status ENUM('scheduled', 'completed', 'cancelled') DEFAULT 'scheduled',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (patient_id) REFERENCES Patients(id) ON DELETE CASCADE,
+        FOREIGN KEY (doctor_id) REFERENCES Doctors(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    `);
+    await connection.execute(`
+    CREATE TABLE IF NOT EXISTS Payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        appointment_id INT NOT NULL,
+        amount DECIMAL(10, 2) NOT NULL,
+        payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+        FOREIGN KEY (appointment_id) REFERENCES Appointments(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB
+    `);
     connection.release();
     console.log('✅ Database tables initialized successfully');
   } catch (error) {

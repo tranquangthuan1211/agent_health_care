@@ -6,14 +6,14 @@ const QUEUE_NAME = 'emailQueue';
 const ROUTING_KEY = 'chatbot.request';
 
 class Consumer {
-    constructor(routingKey = ROUTING_KEY) {
+    constructor(url, method) {
         this.exchange = EXCHANGE;
         this.queue = QUEUE_NAME;
-        this.routingKey = routingKey;
+        this.routingKey = ROUTING_KEY;
         this.connection = null;
         this.channel = null;
-        // this.url = url;
-        // this.method = method;
+        this.url = url;
+        this.method = method;
     }
 
     async start() {
@@ -34,8 +34,8 @@ class Consumer {
                     console.log('Received message:', messageContent);
                     console.log(`Processing health query from: ${messageContent.userId}`);
                     console.log("type:", messageContent.type);
-                    const response = await fetch('http://localhost:8080/api/chat', {
-                            method: 'POST',
+                    const response = await fetch(this.url, {
+                            method: this.method,
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 userId: messageContent.userId,
@@ -68,4 +68,4 @@ class Consumer {
         }
     }
 }
-export default new Consumer();
+export default Consumer;
