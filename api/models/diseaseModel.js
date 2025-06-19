@@ -1,12 +1,15 @@
 import {pool} from "../config/db-config.js";
 class DiseaseModel {
     static async getAllDiseases() {
-        const query = 'SELECT * FROM diseases';
+        const query = 'SELECT diseases.id, diseases.name, diseases.description, specialties.name AS specialty_name \
+        FROM diseases \
+        join specialties ON diseases.specialty_id = specialties.id';
         const [rows] = await pool.query(query);
         return rows;
     }
     static async getDiseaseById(diseaseId) {
-        const query = 'SELECT * FROM diseases WHERE id = ?';
+        const query = 'SELECT diseases.id, diseases.name, diseases.description, specialties.name AS specialty_name FROM diseases \
+        join specialties ON diseases.specialty_id = specialties.id WHERE diseases.id = ?';
         const [rows] = await pool.query(query, [diseaseId]);
         return rows[0];
     }

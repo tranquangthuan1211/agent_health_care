@@ -4,6 +4,7 @@ const router = express.Router();
 function useRouteDisease() {
     // Get all diseases
     router.get("/", diseasesController.getDiseases);
+    // Get disease by ID
 
     return router;
 }

@@ -11,7 +11,7 @@ class MessagesChatModel {
 
   static async getHistoryChatsByUserId(userId) {
     const query = `
-      SELECT * FROM history_chats
+      SELECT * FROM  messages
       WHERE user_id = ?
       ORDER BY created_at DESC
     `;
