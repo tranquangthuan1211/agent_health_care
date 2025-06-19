@@ -120,7 +120,7 @@ async function initDatabase() {
         status ENUM('scheduled', 'completed', 'cancelled') DEFAULT 'scheduled',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (patient_id) REFERENCES Patients(id) ON DELETE CASCADE,
+        FOREIGN KEY (patient_id) REFERENCES Users(id) ON DELETE CASCADE,
         FOREIGN KEY (doctor_id) REFERENCES Doctors(id) ON DELETE CASCADE
     ) ENGINE=InnoDB
     `);

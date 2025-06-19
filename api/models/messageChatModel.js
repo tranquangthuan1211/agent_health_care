@@ -11,9 +11,10 @@ class MessagesChatModel {
 
   static async getHistoryChatsByUserId(userId) {
     const query = `
-      SELECT * FROM  messages
+      SELECT * FROM messages
       WHERE user_id = ?
       ORDER BY created_at DESC
+      LIMIT 50
     `;
     const [rows] = await pool.execute(query, [userId]);
     return rows;

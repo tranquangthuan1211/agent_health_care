@@ -4,6 +4,7 @@ import useMessageChatRoute from './routes/messageChatRoute.js';
 import useRouteDoctor from './routes/doctorRoute.js';
 import useRouteDisease from './routes/diseaseRoute.js';
 import useRouteSpecialty from './routes/specialtyRoute.js';
+import useAppointmentRoute from './routes/appointmentRoute.js';
 import { initDatabase } from './config/db-config.js';
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -17,10 +18,11 @@ app.use('/api/doctors', useRouteDoctor());
 app.use('/api/chat', useMessageChatRoute());
 app.use('/api/diseases', useRouteDisease());
 app.use('/api/specialties', useRouteSpecialty());
+app.use('/api/appointments', useAppointmentRoute());
 
 const startServer = async () => {
     try {
-        // await initDatabase(); // Initialize database tables
+        await initDatabase(); // Initialize database tables
         // console.log('Database initialized successfully');
         // await rabbitmq.connect(); // kết nối RabbitMQ
         console.log('RabbitMQ connection disabled for testing');
