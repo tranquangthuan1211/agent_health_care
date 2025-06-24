@@ -2,8 +2,10 @@ import 'dotenv/config';
 import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
 import { specialties, diseases, doctors } from '../../renderUi/mockData.js';
-import requestPrompt from "../promt/requestProme.js"
+import requestPrompt from "../promt/requestPrompt.js"
 import doctorFunction from '../functionCalling/doctorFunction.js';
+import specialtyFunction from '../functionCalling/specialtyFunction.js';
+import diseasesFunction from '../functionCalling/diseasesFunction.js';  
 
 class HealthCareAIModel {
     constructor() {
@@ -15,9 +17,27 @@ class HealthCareAIModel {
         );
         
 // --------- Note: This is a simplified example. In production, you should use environment variables for sensitive data.
-        this.systemPrompt = requestPrompt(specialties, diseases, doctors) 
+        this.systemPrompt = ""
     }
-// Method to generate AI response based on user message and conversation history
+    async initialize() {
+        try {
+            const [doctors, diseases, specialties] = await Promise.all([
+                doctorFunction.getDoctor(),
+                diseasesFunction.getDisease(),
+                specialtyFunction.getSpecialty()
+            ]);
+
+            this.systemPrompt = requestPrompt(specialties, diseases, doctors);
+            console.log("System prompt initialized successfully.");
+            console.log('Initializing AI model client...');
+        }
+        catch (error) {
+            console.error('Error initializing AI model client:', error);
+            throw new Error('Failed to initialize AI model client');
+        }
+    }
+
+    // Method to generate AI response based on user message and conversation history
     async generateResponse(userMessage, conversationHistory = []) {
         try {
             const messages = [

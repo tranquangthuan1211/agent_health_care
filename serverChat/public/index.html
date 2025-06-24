@@ -228,13 +228,25 @@
             
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
-            messageContent.innerHTML = content.replace(/\n/g, '<br>');
-            
             messageDiv.appendChild(messageContent);
             chatMessages.appendChild(messageDiv);
-            
-            // Scroll to bottom
+
             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            if (isUser) {
+                messageContent.innerHTML = content.replace(/\n/g, '<br>');
+            } else {
+                let index = 0;
+                const interval = setInterval(() => {
+                    messageContent.innerHTML = content.slice(0, index + 1).replace(/\n/g, '<br>');
+                    index++;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    if (index >= content.length) {
+                        clearInterval(interval);
+                    }
+                }, 20); // Tốc độ gõ (ms), bạn có thể điều chỉnh
+            }
         }
 
         function showTyping() {

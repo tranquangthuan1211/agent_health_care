@@ -125,14 +125,17 @@ async function initDatabase() {
     ) ENGINE=InnoDB
     `);
     await connection.execute(`
-    CREATE TABLE IF NOT EXISTS Payments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        appointment_id INT NOT NULL,
-        amount DECIMAL(10, 2) NOT NULL,
-        payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
-        FOREIGN KEY (appointment_id) REFERENCES Appointments(id) ON DELETE CASCADE
-    ) ENGINE=InnoDB
+        CREATE TABLE IF NOT EXISTS Payments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            appointment_id INT NOT NULL,
+            amount DECIMAL(10, 2) NOT NULL,
+            payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+            FOREIGN KEY (appointment_id) REFERENCES Appointments(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+            INDEX idx_user_id (user_id)
+        ) ENGINE=InnoDB
     `);
     connection.release();
     console.log('✅ Database tables initialized successfully');

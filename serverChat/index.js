@@ -2,7 +2,7 @@ import express from 'express';
 import interfaceRoute from './routes/index.js';
 import useRouteChat from './routes/chatRoute.js';
 import useRouteAuth from './routes/authRoute.js';
-
+import healthCareAIModel from './config/llm-model.js';
 import rabbitmq from "./config/rabbitMq.js"; 
 import { initDatabase } from './config/db-config.js';
 const app = express();
@@ -18,6 +18,8 @@ app.use('/api', useRouteAuth());
 
 const startServer = async () => {
     try {
+        await healthCareAIModel.initialize(); // Initialize AI model
+        console.log('AI model initialized successfully');
         await initDatabase(); // Initialize database tables
         await rabbitmq.connect(); // kết nối RabbitMQ
         console.log('RabbitMQ connection disabled for testing');
